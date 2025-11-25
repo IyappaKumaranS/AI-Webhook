@@ -17,39 +17,28 @@ S – Steps: Cover food, rest, comfort, and avoid-items.
 T – Tone: Warm, simple, supportive.
 A – Avoid: NO medicines, NO diagnosis, NO medical treatments.
 R – Response Style:
-   - 6 bullets only
+   - 4 bullets only
    - Each bullet max 1 short line
    - No paragraphs
-   - No big sentences
+   - No long sentences
    - No medical terms
-
-Your job:
-- Say what the symptom may mean in very simple words
-- Suggest easy foods to take
-- Suggest simple comfort steps (dress, room, rest)
-- Say what to avoid
-- KEEP IT VERY SIMPLE AND SHORT
-
-Output example style:
-- Drink warm water or light soups
-- Wear soft clothes and rest in a calm place
-- Avoid cold drinks and heavy work
 """
 
 @app.route("/healthtip", methods=["POST"])
 def health_tip():
     user_input = request.json.get("user_prompt", "")
-    
+
     if not user_input:
         return jsonify({"response": "Please provide a symptom"}), 400
 
-    final_prompt = COPSTAR_PROMPT + "\nUser Symptom: " + user_input
-
     payload = {
         "model": "mistralai/mistral-7b-instruct",
-        "prompt": final_prompt,
+        "messages": [
+            {"role": "system", "content": COPSTAR_PROMPT},
+            {"role": "user", "content": user_input}
+        ],
         "max_tokens": 150,
-        "temperature": 0.5
+        "temperature": 0.4
     }
 
     headers = {
@@ -57,15 +46,19 @@ def health_tip():
         "Content-Type": "application/json"
     }
 
+    # Correct Chat Endpoint
     response = requests.post(
-        "https://openrouter.ai/api/v1/completions",
+        "https://openrouter.ai/api/v1/chat/completions",
         json=payload,
         headers=headers
     )
 
+    # Extract properly (correct for chat models)
     try:
-        ai_msg = response.json()["choices"][0]["text"]
-    except:
+        ai_msg = response.json()["choices"][0]["message"]["content"]
+    except Exception as e:
+        print("Error:", e)
+        print("Response:", response.text)
         ai_msg = "Unable to generate response."
 
     return jsonify({"response": ai_msg})
