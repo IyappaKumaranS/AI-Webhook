@@ -1,9 +1,10 @@
 from flask import Flask, request, jsonify
 import requests
+import os
 
 app = Flask(__name__)
 
-OPENROUTER_API_KEY = "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"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 COPSTAR_PROMPT = """
 You are a friendly health-tips assistant.
