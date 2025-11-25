@@ -34,7 +34,6 @@ Output example style:
 - Drink warm water or light soups
 - Wear soft clothes and rest in a calm place
 - Avoid cold drinks and heavy work
-
 """
 
 @app.route("/healthtip", methods=["POST"])
