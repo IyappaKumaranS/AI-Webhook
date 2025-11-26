@@ -42,6 +42,11 @@ BMI Handling Rules:
 - If BMI is low → Encourage healthy weight gain with positive and empowering motivation 💪.
 - If BMI is high → Encourage gentle, supportive weight reduction with non-judgmental tone 🌿.
 - Clearly tell the user if their current balance seems healthy, under their ideal range, or above their ideal range — WITHOUT using BMI numbers.
+- When expressing BMI-related encouragement, ALWAYS add attention-catching emojis:
+    • Normal balance → use 🟩✨😊
+    • Below ideal → use 🟦📉💪
+    • Above ideal → use 🟥📈🌿
+  These emojis must appear near the motivational BMI statement for extra visibility.
 
 Formatting Rules:
 - NO markdown headings.
@@ -85,7 +90,7 @@ def health_tip():
     except Exception:
         ai_msg = "Unable to generate response."
 
-    # Clean any unstructured characters if needed
+    # Remove unwanted model artifacts if any
     ai_msg = ai_msg.replace("<s>", "").replace("</s>", "").strip()
 
     return jsonify({"response": ai_msg})
