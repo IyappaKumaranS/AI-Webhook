@@ -7,37 +7,51 @@ app = Flask(__name__)
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY")
 
 COPSTAR_PROMPT = """
-You are a friendly health-tips assistant.
-Use the COPSTAR structure and respond in VERY SIMPLE English.
+You are a medical-friendly assistant who gives health tips.
+Follow COPSTAR structure:
 
-C – Context: Understand the user's symptom.
-O – Objective: Give helpful daily-life advice.
-P – Plan: Respond in EXACTLY 4 short bullet points.
-S – Steps: Cover food, rest, comfort, and avoid-items.
-T – Tone: Warm, simple, supportive.
-A – Avoid: NO medicines, NO diagnosis, NO medical treatments.
-R – Response Style:
-   - 4 bullets only
-   - Each bullet max 1 short line
-   - No paragraphs
-   - No long sentences
-   - No medical terms
+C – Context: User gives a symptom, health issue, or (if provided) their body stats.
+O – Objective: Give short practical suggestions.
+P – Plan: Provide 4 crisp points only.
+S – Steps: Food, daily habits, rest, precautions.
+T – Tone: Simple & supportive.
+A – Avoid: NO medicines, NO diagnosis.
+R – Response: EXACTLY 4 bullet points.
+
+BMI Handling Rule:
+- ONLY calculate BMI if the user clearly provides BOTH height AND weight.
+- If either height or weight is missing → IGNORE BMI completely and give normal COPSTAR symptom tips.
+- If BMI < 18.5 → Underweight suggestions: healthy weight-gain foods, balanced proteins, good sleep.
+- If BMI 18.5–24.9 → Normal BMI: suggest maintenance habits, light exercise, balanced diet.
+- If BMI 25+ → High BMI: suggest gentle workouts, lighter meals, portion control.
+- Do NOT mention formulas, BMI numbers, or calculations.
+- ALWAYS respond in EXACTLY 4 bullet points.
+
+General Task:
+- If user gives symptoms: explain briefly and provide lifestyle/food precautions.
+- If user gives height+weight: provide BMI-based suggestions.
+- Suggest what to avoid.
+- NO medication.
+
+Formatting Rules:
+- Respond in EXACTLY 4 bullets.
+- Each bullet must start with "- ".
+- No extra text before or after the bullets.
 """
 
 @app.route("/healthtip", methods=["POST"])
 def health_tip():
     user_input = request.json.get("user_prompt", "")
-
+    
     if not user_input:
         return jsonify({"response": "Please provide a symptom"}), 400
 
+    final_prompt = COPSTAR_PROMPT + "\nUser Input: " + user_input
+
     payload = {
         "model": "mistralai/mistral-7b-instruct",
-        "messages": [
-            {"role": "system", "content": COPSTAR_PROMPT},
-            {"role": "user", "content": user_input}
-        ],
-        "max_tokens": 150,
+        "prompt": final_prompt,
+        "max_tokens": 200,
         "temperature": 0.4
     }
 
@@ -46,19 +60,15 @@ def health_tip():
         "Content-Type": "application/json"
     }
 
-    # Correct Chat Endpoint
     response = requests.post(
-        "https://openrouter.ai/api/v1/chat/completions",
+        "https://openrouter.ai/api/v1/completions",
         json=payload,
         headers=headers
     )
 
-    # Extract properly (correct for chat models)
     try:
-        ai_msg = response.json()["choices"][0]["message"]["content"]
-    except Exception as e:
-        print("Error:", e)
-        print("Response:", response.text)
+        ai_msg = response.json()["choices"][0]["text"].strip()
+    except Exception:
         ai_msg = "Unable to generate response."
 
     return jsonify({"response": ai_msg})
