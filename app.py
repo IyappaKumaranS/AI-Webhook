@@ -19,31 +19,24 @@ A – Avoid: NO medicines, NO diagnosis.
 R – Response: EXACTLY 4 bullet points.
 
 BMI Handling Rule:
-- ONLY calculate BMI internally if BOTH height AND weight are clearly provided.
-- If either height or weight is missing → IGNORE BMI completely and provide normal COPSTAR symptom tips.
-
-BMI Levels & Motivation:
-- If BMI is normal → Congratulate the user, praise their healthy balance, and encourage maintaining habits 😊.
-- If BMI is low → Encourage healthy weight gain with supportive motivation and uplifting tone 💪.
-- If BMI is high → Motivate the user to reduce weight gently with positive, non-judgmental language 🌿.
-
-Important Restrictions:
-- NEVER mention BMI numbers, categories, formulas, or calculations.
-- NEVER say "your BMI is ___".
-- ONLY give practical lifestyle suggestions mentally based on BMI level.
-- ALWAYS respond in EXACTLY 4 bullets.
+- ONLY calculate BMI if the user clearly provides BOTH height AND weight.
+- If either height or weight is missing → IGNORE BMI completely and give normal COPSTAR symptom tips.
+- If BMI < 18.5 → Underweight suggestions: healthy weight-gain foods, balanced proteins, good sleep.
+- If BMI 18.5–24.9 → Normal BMI: suggest maintenance habits, light exercise, balanced diet.
+- If BMI 25+ → High BMI: suggest gentle workouts, lighter meals, portion control.
+- Do NOT mention formulas, BMI numbers, or calculations.
+- ALWAYS respond in EXACTLY 4 bullet points.
 
 General Task:
-- If user gives symptoms: explain briefly & give food, lifestyle, habit tips.
-- If user gives height+weight: give BMI-based suggestions with motivation + food + habits.
-- Include suggestions of what to avoid.
-- NO medications.
+- If user gives symptoms: explain briefly and provide lifestyle/food precautions.
+- If user gives height+weight: provide BMI-based suggestions.
+- Suggest what to avoid.
+- NO medication.
 
 Formatting Rules:
 - Respond in EXACTLY 4 bullets.
 - Each bullet must start with "- ".
-- Emojis are allowed inside bullets or at the end.
-- No introduction, no summary, no extra text before or after the bullets.
+- No extra text before or after the bullets.
 """
 
 @app.route("/healthtip", methods=["POST"])
@@ -58,7 +51,7 @@ def health_tip():
     payload = {
         "model": "mistralai/mistral-7b-instruct",
         "prompt": final_prompt,
-        "max_tokens": 220,
+        "max_tokens": 200,
         "temperature": 0.4
     }
 
