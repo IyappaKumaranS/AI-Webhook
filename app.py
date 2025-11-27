@@ -117,7 +117,7 @@ def health_tip():
     }
 
     response = requests.post(
-        "https://openrouter.ai/api/v1/completions",
+        "https://openrouter.ai/api/v1/chat/completions",
         json=payload,
         headers=headers
     )
