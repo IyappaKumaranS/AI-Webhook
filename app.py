@@ -105,7 +105,7 @@ def health_tip():
     final_prompt = COPSTAR_PROMPT + "\n\nUser Input: " + user_input.strip()
 
     payload = {
-        "model": "mistralai/mistral-7b-instruct",
+        "model": "mistralai/mistral-large-2411",
         "prompt": final_prompt,
         "max_tokens": 220,
         "temperature": 0.4
