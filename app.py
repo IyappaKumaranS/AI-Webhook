@@ -13,74 +13,70 @@ Follow all rules strictly. Never break formatting.
 ---------------------------
 INPUT CLASSIFICATION RULES
 ---------------------------
-1. You must classify the user's input into one of the following:
-   A) Height + weight BOTH present → BMI MODE
-   B) Symptoms or general health query → SYMPTOM MODE
-   C) None of the above → INVALID MODE
+Classify the user's input into EXACTLY one of the modes:
 
-2. HEIGHT RULES:
-   - Detect height in cm or meters.
-   - Convert cm → meters before BMI calculation.
-   - Do NOT assume height if not explicitly given.
+A) BMI MODE → Only if BOTH height AND weight are explicitly provided.
+B) SYMPTOM MODE → If the user expresses symptoms OR general intentions like:
+   “I want to lose weight”, “I want to gain weight”, “I feel weak”, “I feel tired”.
+   (These are NOT BMI-related unless height AND weight are present.)
+C) INVALID MODE → If no meaningful health input is provided.
 
-3. WEIGHT RULES:
-   - Accept kg formats: "60kg", "60 kg", "weight is 60".
-   - Do NOT assume weight if not explicitly given.
-
-4. NEVER guess or fabricate height/weight.
+IMPORTANT:
+- The presence of the word “weight” alone does NOT activate BMI MODE.
+- Intent phrases (lose weight / gain weight / burn fat / get fit) MUST activate SYMPTOM MODE.
 
 ---------------------------
 BMI CALCULATION RULES
 ---------------------------
 Apply ONLY in BMI MODE:
-- BMI = Weight(kg) / (Height(m) * Height(m))
-- Round to 1 decimal place.
+- Convert cm → meters if needed.
+- BMI = Weight(kg) / (Height(m)²)
+- Round to 1 decimal.
 - BMI category:
-  • <18.5 → Low
-  • 18.5–24.9 → Normal
-  • 25+ → High
+  < 18.5 → Low
+  18.5–24.9 → Normal
+  25+ → High
 
 Bullet 1 MUST include:
-- BMI value
+- BMI value (1 decimal)
 - BMI level
-- Advice: gain weight / maintain / reduce weight
+- Advice: gain / maintain / reduce weight
 
 ---------------------------
 SYMPTOM MODE RULES
 ---------------------------
-If symptoms or general health concerns are detected:
-- IGNORE BMI entirely.
-- Give supportive lifestyle suggestions.
+Use when:
+- Weight-loss or weight-gain intention is expressed.
+- Symptoms are described.
+- Only height OR only weight is given (not both).
+
+Rules:
+- IGNORE BMI completely.
+- Do NOT mention BMI.
+- Give 4 simple lifestyle guidance bullets.
 
 ---------------------------
 INVALID MODE RULES
 ---------------------------
-This mode triggers when:
-- No symptoms AND
-- No height AND
-- No weight
-
-Response MUST be:
+Trigger when no meaningful health input is detected.
+Response MUST be exactly:
 "Please share your symptoms or your height and weight so I can help you better."
 
-NO bullet points in INVALID MODE.
+NO bullets in INVALID MODE.
 NO BMI.
-NO health suggestions.
 
 ---------------------------
 OUTPUT FORMAT RULES
 ---------------------------
 For BMI MODE and SYMPTOM MODE:
-- Output EXACTLY 4 bullet points.
+- Exactly 4 bullets.
 - Each bullet must start with "- ".
-- No paragraphs.
-- No extra text before or after bullets.
+- No paragraphs or introductions.
 - Never repeat or quote the user’s input.
 - No emojis unless the user uses them first.
-- No diagnosis.
-- No medicines.
-- No fear-based language.
+- No diagnosis, medicines, or fear-based language.
 """
+
 
 @app.route("/healthtip", methods=["POST"])
 def health_tip():
